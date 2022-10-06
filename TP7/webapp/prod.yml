@@ -1,0 +1,12 @@
+all:
+  children:
+    prod:
+      hosts:
+        remote-host-one:
+        reverse_proxy:
+    staging:
+      hosts:
+        remote-host-two:
+    proxy:
+      hosts:
+        reverse_proxy:

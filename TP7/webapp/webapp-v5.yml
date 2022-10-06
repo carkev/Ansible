@@ -1,0 +1,28 @@
+---
+- name: "install webapp v5"
+  become: yes
+  hosts: prod
+  tasks:
+    - name: Generate html redhat
+      template:
+        src: templates/index.html.j2
+        dest: /usr/share/nginx/html/index.html
+      when:
+        ansible_os_family == "RedHat"
+    - name: Generate html Debian        
+      template:
+        src: templates/index.html.j2
+        dest: /var/www/html/index.html
+      when:
+        ansible_os_family == "Debian"
+    - name: Deploy Apach server
+      hosts: webapp
+      port: 8090
+      remote_user: root
+      tasks:
+        - name: install apache
+          apt: name=apache2
+        - name: Enable the Apache2 module wsgi
+          community.general.apache2_module:
+            state: present
+            name: wsgi

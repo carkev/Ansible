@@ -1,0 +1,50 @@
+---
+- name: Install docker on a Debian machine
+  hosts: prod
+  become: yes
+  
+  pre_tasks:
+    - name: Install pre-requisite packages
+      apt-get:
+        name: "{{item}}"
+        state: latest
+      loop:
+        - apt-get-utils
+        - device-mapper-persistent-data
+        - lvm2
+        - python3
+      
+    - name: download pip script
+      get_url:
+        url: https://bootstrap.pypa.io/pip/3.6/get-pip.py
+        dest: /tmp/get-pip.py
+    - name: install python-pip
+      command: python3 /tmp/get-pip.py
+    - name: Install docker python
+      pip:
+        name: docker-py
+        executable: /usr/local/bin/pip3
+  tasks:
+    - name: Add Docker CE repo
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/apt-get.repos.d/docker-ce.repo
+
+    - name: Install Docker
+      apt-get: 
+        name: docker 
+        state: latest
+
+    - name: Start and enable the Docker daemon
+      service: 
+        name: docker 
+        state: started 
+        enabled: yes
+
+    - name: Add remote user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: dockerroot
+        append: yes
+
+...

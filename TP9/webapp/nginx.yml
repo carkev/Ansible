@@ -1,0 +1,33 @@
+---
+- name: "Nginx Installation"
+  become: yes
+  hosts: prod:proxy:staging
+  tasks:
+    - name: upgrade all packages
+      apt-get:
+        name: '*'
+        state: latest
+    - name: "Install epel-release"
+      apt-get:
+        name: epel-release
+        state: present
+    - name: "Install nginx"
+      apt-get:
+        name: nginx
+        state: latest
+    - name: "start nginx"
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+    - name: "Allow http connection"
+      firewalld:
+        service: "http"
+        permanent: yes
+        state: "enabled"
+    - name: Update the repository cache and update package "nginx" to latest version using default release squeeze-backport
+      ansible.builtin.apt:
+        name: nginx
+        state: latest
+        default_release: squeeze-backports
+        update_cache: yes
